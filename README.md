@@ -23,14 +23,33 @@ implementation parses cleanly in the other (verified by cross-compat test vector
 - Deterministic IDs from a key (UUIDv5 / SHA-1)
 - Trivial conversion to/from standard UUIDs
 - Optional `serde` support (serializes as a string)
+- Optional database support — `sqlx` (any backend) and `rusqlite`, stored as `TEXT`
 
 ## Installation
 
 ```toml
 [dependencies]
 xuid-rs = "0.1"
-# with JSON / serde support:
-# xuid-rs = { version = "0.1", features = ["serde"] }
+# optional features:
+# xuid-rs = { version = "0.1", features = ["serde"] }     # JSON / serde
+# xuid-rs = { version = "0.1", features = ["sqlx"] }      # sqlx (bring your own backend)
+# xuid-rs = { version = "0.1", features = ["rusqlite"] }  # rusqlite
+```
+
+### Database
+
+With the `sqlx` or `rusqlite` feature, `Xuid` implements the relevant encode/decode
+traits and is stored as the textual XUID form (`TEXT`/`VARCHAR`), so the type prefix is
+preserved. `sqlx` support is generic over any backend (Postgres, MySQL, SQLite, ...).
+
+```rust,ignore
+// sqlx — bind and read directly:
+sqlx::query("INSERT INTO items (id) VALUES (?)").bind(&id).execute(&pool).await?;
+let id: Xuid = sqlx::query_scalar("SELECT id FROM items").fetch_one(&pool).await?;
+
+// rusqlite — same, via ToSql/FromSql:
+conn.execute("INSERT INTO items (id) VALUES (?1)", [&id])?;
+let id: Xuid = conn.query_row("SELECT id FROM items", [], |r| r.get(0))?;
 ```
 
 ## Usage

@@ -39,6 +39,12 @@ pub use error::Error;
 #[cfg(feature = "serde")]
 mod serde_impl;
 
+#[cfg(feature = "sqlx")]
+mod sqlx_impl;
+
+#[cfg(feature = "rusqlite")]
+mod rusqlite_impl;
+
 /// Reference namespace used to derive deterministic XUIDs from keys (matches the Go lib).
 const REF_NS: Uuid = Uuid::from_bytes([
     0xd1, 0x6b, 0x61, 0x39, 0x89, 0x89, 0x46, 0x7f, 0xa2, 0x40, 0x44, 0x1d, 0xf6, 0x73, 0x4f, 0x45,

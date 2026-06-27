@@ -20,13 +20,23 @@ path = "src/lib.rs"
 uuid = { version = "1", features = ["v4", "v5", "v7"] }
 data-encoding = "2"
 serde = { version = "1", optional = true, default-features = false, features = ["alloc"] }
+# Only the core traits are used; backends/runtime are selected by the downstream crate.
+sqlx = { version = "0.9", default-features = false, optional = true }
+rusqlite = { version = "0.40", default-features = false, optional = true }
 
 [dev-dependencies]
 serde_json = "1"
+# rusqlite is live-tested with a bundled SQLite. The sqlx impl is generic over the
+# backend and type-checks at compile time under `--all-features`; it is not live-tested
+# because sqlx's SQLite driver and rusqlite both link the native `sqlite3` library and
+# cannot share a single test binary.
+rusqlite = { version = "0.40", features = ["bundled"] }
 
 [features]
 default = []
 serde = ["dep:serde", "uuid/serde"]
+sqlx = ["dep:sqlx"]
+rusqlite = ["dep:rusqlite"]
 
 [package.metadata.docs.rs]
 all-features = true
